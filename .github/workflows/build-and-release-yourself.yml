@@ -26,7 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-
       - name: Hide Sensitive Inputs
         uses: levibostian/action-hide-sensitive-inputs@v1
 
@@ -82,6 +81,17 @@ jobs:
           sudo mv ipapatch.macos-arm64 /usr/local/bin/ipapatch
           sudo chmod +x /usr/local/bin/ipapatch
 
+      - name: Cloud-Strip Watch and Siri Extensions
+        run: |
+          mkdir unzip_tmp
+          unzip spotify.ipa -d unzip_tmp
+          rm -rf unzip_tmp/Payload/Spotify.app/Watch
+          rm -rf unzip_tmp/Payload/Spotify.app/PlugIns/*watch*
+          rm -rf unzip_tmp/Payload/Spotify.app/PlugIns/*Intent*
+          cd unzip_tmp && zip -r ../spotify_cleaned.ipa . && cd ..
+          mv spotify_cleaned.ipa spotify.ipa
+          rm -rf unzip_tmp
+
       - name: Create EeveeSpotify Package
         run: |
           ivinject-arm64 spotify.ipa EeveeSpotify.ipa \
@@ -104,3 +114,4 @@ jobs:
       - name: Output Release URL
         run: |
           echo "::notice::Release available at: https://github.com/${{ github.repository }}/releases"
+
